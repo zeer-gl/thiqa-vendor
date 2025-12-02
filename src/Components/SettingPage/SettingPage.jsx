@@ -5,9 +5,11 @@ import BaseURL from '../BaseURL/BaseURL';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useAuth } from '../AuthContext/AuthContext';
 
 const SettingsPage = () => {
   const { t } = useTranslation(); // Use the translation hook
+  const { token } = useAuth();
   const [profile, setProfile] = useState({
     email: '',
     businessName: '',
@@ -49,9 +51,18 @@ const SettingsPage = () => {
   // Fetch vendor data on component mount
   useEffect(() => {
     const fetchVendor = async () => {
+      if (!token) {
+        setError('Access token required');
+        return;
+      }
+
       setIsFetching(true);
       try {
-        const response = await axios.get(`${BaseURL}/get-vendor/${vendorId}`);
+        const response = await axios.get(`${BaseURL}/get-vendor/${vendorId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const vendor = response.data.vendor;
 
         // Check if address is an object or a string
@@ -196,8 +207,9 @@ const SettingsPage = () => {
   
       const config = {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
       };
   
       const response = await axios.put(`${BaseURL}/update-vendor/${vendorId}`, formData, config);
@@ -253,10 +265,18 @@ const SettingsPage = () => {
     setPasswordLoading(true);
     setPasswordError(null);
     try {
-      await axios.put(`${BaseURL}/${vendorId}/change-password`, {
-        currentPassword,
-        newPassword
-      });
+      await axios.put(
+        `${BaseURL}/${vendorId}/change-password`,
+        {
+          currentPassword,
+          newPassword,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.success(t('password_changed_successfully'));
       closePasswordModal();
     } catch (err) {

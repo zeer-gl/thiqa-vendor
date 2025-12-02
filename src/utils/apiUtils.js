@@ -8,10 +8,17 @@ const getAuthToken = () => {
 // Make an authenticated API request
 export const authenticatedFetch = async (endpoint, options = {}) => {
   const token = getAuthToken();
-  
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-  };
+
+  // Detect if the body is FormData (for file uploads)
+  const isFormData =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
+
+  const defaultHeaders = {};
+
+  // Only set JSON Content-Type when NOT sending FormData
+  if (!isFormData) {
+    defaultHeaders['Content-Type'] = 'application/json';
+  }
 
   // Add authorization header if token exists
   if (token) {
@@ -28,7 +35,7 @@ export const authenticatedFetch = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(`${BaseURL}${endpoint}`, config);
-    
+
     // If response is 401 (Unauthorized), clear auth data and redirect to login
     // COMMENTED OUT - Disabled automatic redirect to sign-in on 401 errors
     /*

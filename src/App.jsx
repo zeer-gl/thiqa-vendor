@@ -6,6 +6,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AuthProvider } from './Components/AuthContext/AuthContext';
 import { CategoryProvider } from './Components/CategoryContext/CategoryContext';
+import { VendorProvider } from './Components/VendorContext/VendorContext';
 
 import VendorRegistration from './Components/VendorRegistration/VendorRegistration';
 import ProductListManager from './Components/ProductManagement/ProductManagement';
@@ -102,6 +103,7 @@ function App() {
     <Router>
       <AuthProvider>
         <CategoryProvider>
+          <VendorProvider>
           <Routes>
         <Route path="/registration" element={<VendorRegistration />} />
         <Route path="/sign-in" element={<LoginForm />} />
@@ -243,6 +245,7 @@ function App() {
         />
       </Routes>
       <ToastContainer position="top-right" autoClose={2000} />
+          </VendorProvider>
         </CategoryProvider>
       </AuthProvider>
     </Router>

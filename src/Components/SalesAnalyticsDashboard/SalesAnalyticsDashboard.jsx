@@ -18,10 +18,12 @@ import axios from 'axios';
 import { VendorContext } from '../VendorContext/VendorContext';
 import BaseURL from '../BaseURL/BaseURL';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import { useAuth } from '../AuthContext/AuthContext';
 
 const SalesAnalyticsDashboard = () => {
   const { t } = useTranslation(); // Use the translation hook
   const { vendorId } = useContext(VendorContext);
+  const { token } = useAuth();
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [metricsSummary, setMetricsSummary] = useState({
@@ -38,6 +40,11 @@ const SalesAnalyticsDashboard = () => {
   const [noDataFound, setNoDataFound] = useState(false);
 
   const fetchData = async () => {
+    if (!token) {
+      setError('Access token required');
+      return;
+    }
+
     if (!vendorId) {
       setError(t('vendor_id_missing'));
       return;
@@ -53,20 +60,27 @@ const SalesAnalyticsDashboard = () => {
         startDate: startDate || undefined,
         endDate: endDate || undefined
       };
+
+      const config = {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
   
       // First try to fetch metrics summary
       try {
-        const metricsRes = await axios.get(`${BaseURL}/metrics-summary`, { params });
+        const metricsRes = await axios.get(`${BaseURL}/metrics-summary`, config);
   
         // If the metrics response is valid, proceed with further data fetches
         setMetricsSummary(metricsRes.data);
   
         // Fetch other data if metrics data is successfully received
         const [revenueRes, trendsRes, topProductsRes, ordersStatusRes] = await Promise.all([
-          axios.get(`${BaseURL}/revenue-breakdown`, { params }),
-          axios.get(`${BaseURL}/sales-trends`, { params }),
-          axios.get(`${BaseURL}/top-products`, { params }),
-          axios.get(`${BaseURL}/orders-by-status`, { params })
+          axios.get(`${BaseURL}/revenue-breakdown`, config),
+          axios.get(`${BaseURL}/sales-trends`, config),
+          axios.get(`${BaseURL}/top-products`, config),
+          axios.get(`${BaseURL}/orders-by-status`, config)
         ]);
   
         // Handle revenue breakdown response

@@ -87,9 +87,12 @@ const OrderDashboard = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('authToken');
       await axios.put(`${BaseURL}/orders/${orderId}/status`, {
         status: newStatus,
         vendorId,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
@@ -117,11 +120,15 @@ const OrderDashboard = () => {
   const handleUpdateOrder = async () => {
     try {
       setLoading(true);
+      const token = localStorage.getItem('authToken');
       await axios.put(
         `${BaseURL}/updateOrder?vendorId=${vendorId}&orderId=${selectedOrder.id}`, 
         { 
           shippingAddress: selectedOrder.shippingAddress,
           totalAmount: selectedOrder.totalAmount,
+        },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
         }
       );
       setOrders((prevOrders) =>

@@ -20,6 +20,8 @@ const ProductListManager = () => {
   const [fetchError, setFetchError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
   const vendorId = localStorage.getItem('vendorId');
   const [filteredProducts, setFilteredProducts] = useState([]);
 
@@ -149,7 +151,19 @@ const ProductListManager = () => {
     }
   };
 
-  const handleDelete = async (productId) => {
+  const confirmDelete = (product) => {
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setProductToDelete(null);
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    const productId = productToDelete._id;
     try {
       const response = await authenticatedFetch(`/deleteProduct/${productId}`, {
         method: 'DELETE',
@@ -163,6 +177,7 @@ const ProductListManager = () => {
         );
         toast.success(t('product_deleted_successfully'));
       }
+      closeDeleteModal();
     } catch (error) {
       console.error('Error deleting product:', error);
       toast.error(t('product_deleted_error'));
@@ -277,7 +292,7 @@ const ProductListManager = () => {
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleDelete(product._id)}
+                        onClick={() => confirmDelete(product)}
                         className="text-red-500 hover:text-red-700"
                       >
                         <Trash2 className="w-5 h-5" />
@@ -299,6 +314,55 @@ const ProductListManager = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && productToDelete && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 p-6 animate-fade-in">
+            <div className="flex items-center mb-4">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-red-100 text-red-600 mr-3">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                {t('confirm_delete_title') || 'Delete product?'}
+              </h2>
+            </div>
+
+            <p className="text-sm text-gray-600 mb-4">
+              {t('confirm_delete_message') ||
+                'Are you sure you want to delete this product? This action cannot be undone.'}
+            </p>
+
+            <div className="bg-gray-50 border border-dashed border-gray-200 rounded-lg p-3 mb-6">
+              <p className="text-xs uppercase tracking-wide text-gray-400 mb-1">
+                {t('product')}
+              </p>
+              <p className="text-sm font-medium text-gray-900">
+                {i18n.language === 'ar'
+                  ? productToDelete.name_ar
+                  : productToDelete.name_en}
+              </p>
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                type="button"
+                onClick={closeDeleteModal}
+                className="px-4 py-2 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {t('cancel')}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 shadow-sm transition-colors"
+              >
+                {t('delete') || 'Delete'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

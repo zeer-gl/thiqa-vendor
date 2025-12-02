@@ -55,9 +55,17 @@ const AddEditProduct = () => {
     if (isEditMode) {
       const fetchProduct = async () => {
         try {
+          const token = localStorage.getItem("authToken");
+
           const response = await axios.get(
-            `${BaseURL}/getProductById/${productId}`
+            `${BaseURL}/getProductById/${productId}`,
+            {
+              headers: token
+                ? { Authorization: `Bearer ${token}` }
+                : {},
+            }
           );
+
           const product = response.data.product;
 
           // Find the category in the categories list
@@ -318,8 +326,12 @@ const AddEditProduct = () => {
                 id="name_en"
                 value={formData.name_en}
                 onChange={(e) =>
-                  setFormData({ ...formData, name_en: e.target.value })
+                  setFormData({
+                    ...formData,
+                    name_en: e.target.value.slice(0, 30), // limit to 30 characters
+                  })
                 }
+                maxLength={30}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-black ${
                   errors.name_en ? "border-red-500" : "border-gray-300"
                 }`}
@@ -341,9 +353,17 @@ const AddEditProduct = () => {
                 type="text"
                 id="name_ar"
                 value={formData.name_ar}
-                onChange={(e) =>
-                  setFormData({ ...formData, name_ar: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Allow only Arabic characters and spaces, and limit to 30 characters
+                  const arabicRegex = /^[\u0600-\u06FF\s]*$/;
+                  if (!arabicRegex.test(value)) return;
+                  setFormData({
+                    ...formData,
+                    name_ar: value.slice(0, 30),
+                  });
+                }}
+                maxLength={30}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-black ${
                   errors.name_ar ? "border-red-500" : "border-gray-300"
                 }`}
@@ -476,14 +496,17 @@ const AddEditProduct = () => {
                 type="number"
                 id="price"
                 value={formData.price}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length > 6) return;
+                  setFormData({ ...formData, price: value });
+                }}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-black ${
                   errors.price ? "border-red-500" : "border-gray-300"
                 }`}
                 step="0.01"
                 min="0"
+                maxLength={6}
               />
               {errors.price && (
                 <p className="text-red-500 text-sm mt-1">{errors.price}</p>
@@ -502,12 +525,15 @@ const AddEditProduct = () => {
                 type="number"
                 id="discountPrice"
                 value={formData.discountPrice}
-                onChange={(e) =>
-                  setFormData({ ...formData, discountPrice: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length > 6) return;
+                  setFormData({ ...formData, discountPrice: value });
+                }}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black"
                 step="0.01"
                 min="0"
+                maxLength={6}
               />
               {errors.discountPrice && (
                 <p className="text-red-500 text-sm mt-1">
@@ -534,13 +560,16 @@ const AddEditProduct = () => {
                 type="number"
                 id="stockQuantity"
                 value={formData.stockQuantity}
-                onChange={(e) =>
-                  setFormData({ ...formData, stockQuantity: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length > 6) return;
+                  setFormData({ ...formData, stockQuantity: value });
+                }}
                 className={`w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-black ${
                   errors.stockQuantity ? "border-red-500" : "border-gray-300"
                 }`}
                 min="0"
+                maxLength={6}
               />
               {errors.stockQuantity && (
                 <p className="text-red-500 text-sm mt-1">
@@ -561,11 +590,14 @@ const AddEditProduct = () => {
                 type="number"
                 id="lowStockAlert"
                 value={formData.lowStockAlert}
-                onChange={(e) =>
-                  setFormData({ ...formData, lowStockAlert: e.target.value })
-                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value.length > 6) return;
+                  setFormData({ ...formData, lowStockAlert: value });
+                }}
                 className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-black"
                 min="0"
+                maxLength={6}
               />
             </div>
           </div>

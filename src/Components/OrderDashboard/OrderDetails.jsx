@@ -20,7 +20,13 @@ const OrderDetails = () => {
     const fetchOrderDetails = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${BaseURL}/orders/${orderId}?id=${vendorId}`);
+        const token = localStorage.getItem('authToken');
+        const response = await axios.get(
+          `${BaseURL}/orders/${orderId}?id=${vendorId}`,
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          }
+        );
         const fetchedOrder = response.data.order;
         setOrder(fetchedOrder);
         if (fetchedOrder.vendorOrders && fetchedOrder.vendorOrders.length > 0) {
@@ -46,10 +52,17 @@ const OrderDetails = () => {
 
   const handleDeliveryStatusChange = async (newStatus) => {
     try {
-      await axios.put(`${BaseURL}/orders/${orderId}/status`, {
-        status: newStatus,
-        vendorId, // Include vendorId in the request body
-      });
+      const token = localStorage.getItem('authToken');
+      await axios.put(
+        `${BaseURL}/orders/${orderId}/status`,
+        {
+          status: newStatus,
+          vendorId, // Include vendorId in the request body
+        },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        }
+      );
       setDeliveryStatus(newStatus);
       setVendorOrder((prevVendorOrder) => ({
         ...prevVendorOrder,
@@ -74,7 +87,10 @@ const OrderDetails = () => {
 
   const handleDeleteOrder = async () => {
     try {
-      await axios.delete(`${BaseURL}/orders/${orderId}`);
+      const token = localStorage.getItem('authToken');
+      await axios.delete(`${BaseURL}/orders/${orderId}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       toast(t('order_deleted_successfully'));
       navigate('/manage-orders');
     } catch (err) {
