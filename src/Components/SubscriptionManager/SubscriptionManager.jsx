@@ -49,7 +49,7 @@ const SubscriptionManager = () => {
       } catch (err) {
         if (isMounted) {
           console.error('Error fetching vendor plans:', err);
-          setError(err.message || 'Failed to fetch subscription data');
+          setError(err.message || t('failed_to_fetch_subscription_data'));
         }
       } finally {
         if (isMounted) {
@@ -67,6 +67,29 @@ const SubscriptionManager = () => {
 
   // Derive the current plan from the list
   const currentPlanDetails = plans.find((p) => p._id === currentPlanId);
+
+  // Helper function to translate duration
+  const translateDuration = (duration) => {
+    if (!duration) return '';
+    const durationLower = duration.toLowerCase();
+    if (durationLower.includes('weekly') || durationLower === 'weekly') {
+      return t('weekly');
+    }
+    if (durationLower.includes('monthly') || durationLower === 'monthly') {
+      return t('monthly');
+    }
+    return duration; // Return original if no match
+  };
+
+  // Helper function to translate payment method
+  const translatePaymentMethod = (method) => {
+    if (!method) return method;
+    const methodLower = method.toLowerCase();
+    if (methodLower.includes('credit card') || methodLower.includes('creditcard')) {
+      return t('credit_card');
+    }
+    return method; // Return original if no match
+  };
 
   const getFeatureIcon = (feature) => {
     // Example icon logic – adjust as desired
@@ -180,7 +203,7 @@ const SubscriptionManager = () => {
       <div className="max-w-6xl mx-auto p-6">
         <h1 className="text-3xl font-bold mb-8">{t('subscription_management')}</h1>
         <div className="flex justify-center items-center h-64">
-          <div className="text-lg text-red-600">Error: {error}</div>
+          <div className="text-lg text-red-600">{error}</div>
         </div>
       </div>
     );
@@ -277,7 +300,7 @@ const SubscriptionManager = () => {
               <h2 className="text-xl font-bold mb-2">{plan.name}</h2>
               <div className="mb-4">
                 <span className="text-3xl font-bold">${plan.price}</span>
-                <span className="text-gray-600">/{plan.duration}</span>
+                <span className="text-gray-600">/{translateDuration(plan.duration)}</span>
               </div>
               
               <ul className="space-y-3 mb-6">
@@ -330,7 +353,7 @@ const SubscriptionManager = () => {
                 <tr key={index}>
                   <td className="py-2 px-4 border-b border-gray-200">{payment.date}</td>
                   <td className="py-2 px-4 border-b border-gray-200">{payment.amount}</td>
-                  <td className="py-2 px-4 border-b border-gray-200">{payment.method}</td>
+                  <td className="py-2 px-4 border-b border-gray-200">{translatePaymentMethod(payment.method)}</td>
                   <td className="py-2 px-4 border-b border-gray-200">
                     <a href={payment.invoice} className="text-blue-600 hover:underline">
                       {t('download')}
@@ -358,11 +381,11 @@ const SubscriptionManager = () => {
                     {selectedPlan.name} {t('plan')}
                   </span>
                   <span className="font-bold">
-                    ${selectedPlan.price}/{selectedPlan.duration}
+                    ${selectedPlan.price}/{translateDuration(selectedPlan.duration)}
                   </span>
                 </div>
                 <p className="text-sm text-gray-600">
-                  {t('billed_period')} {selectedPlan.duration}. {t('cancel_anytime')}
+                  {t('billed_period')} {translateDuration(selectedPlan.duration)}. {t('cancel_anytime')}
                 </p>
               </div>
               {/* If vendor is already on this plan, show "Cancel Subscription" (example).

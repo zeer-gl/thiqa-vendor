@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom'; 
 import BaseURL from '../BaseURL/BaseURL';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../AuthContext/AuthContext';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const LoginForm = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { login } = useAuth();
   
   const [formData, setFormData] = useState({
@@ -18,6 +19,18 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate(); // Initialize navigate
+
+  // Set initial page direction based on language
+  useEffect(() => {
+    const currentLang = i18n.language || localStorage.getItem('i18nextLng') || 'en';
+    if (currentLang === 'ar') {
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.body.setAttribute('dir', 'rtl');
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.body.setAttribute('dir', 'ltr');
+    }
+  }, [i18n.language]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -63,11 +76,28 @@ const LoginForm = () => {
           navigate('/'); // Redirect to the home page
         } else {
           // Show error toast with the message from the server
-          toast.error(data.message || t('login_failed'));
+          let errorMessage = data.message || t('login_failed');
+          
+          // Translate common error messages
+          if (errorMessage.includes('Invalid credentials') || errorMessage.includes('Invalid email or password')) {
+            errorMessage = i18n.language === 'ar' ? 'البريد الإلكتروني أو كلمة المرور غير صحيحة' : 'Invalid email or password';
+          } else if (errorMessage.includes('Vendor not found') || errorMessage.includes('User not found')) {
+            errorMessage = i18n.language === 'ar' ? 'البائع غير موجود' : 'Vendor not found';
+          } else if (errorMessage.includes('Account is suspended') || errorMessage.includes('Account suspended')) {
+            errorMessage = i18n.language === 'ar' ? 'الحساب معطل' : 'Account is suspended';
+          }
+          
+          toast.error(errorMessage);
         }
       } catch (error) {
         setIsLoading(false);
-        toast.error(t('error_occurred'));
+        let errorMessage = t('error_occurred');
+        
+        if (error.message && error.message.includes('NetworkError')) {
+          errorMessage = i18n.language === 'ar' ? 'خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى.' : 'Network error. Please check your connection and try again.';
+        }
+        
+        toast.error(errorMessage);
         console.error('Error:', error);
       }
     }
@@ -75,7 +105,11 @@ const LoginForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-2xl">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-2xl relative">
+        {/* Language Switcher */}
+        <div className={`absolute top-4 ${i18n.language === 'ar' ? 'left-4' : 'right-4'}`}>
+          <LanguageSwitcher />
+        </div>
        
         {/* Header */}
         <div className="text-center">
@@ -89,11 +123,15 @@ const LoginForm = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {/* Email Field */}
           <div className="space-y-1">
-            <label htmlFor="email" className="text-sm font-medium text-gray-700">
+            <label htmlFor="email" className={`text-sm font-medium text-gray-700 block ${
+              i18n.language === 'ar' ? 'text-right' : 'text-left'
+            }`}>
               {t('email_address')}
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className={`absolute inset-y-0 flex items-center pointer-events-none ${
+                i18n.language === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'
+              }`}>
                 <Mail className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -103,22 +141,31 @@ const LoginForm = () => {
                 autoComplete="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`block w-full pl-10 pr-3 py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ease-in-out`}
+                dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
+                className={`block w-full py-3 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ease-in-out ${
+                  i18n.language === 'ar' ? 'pr-10 pl-3' : 'pl-10 pr-3'
+                }`}
                 placeholder={t('enter_email')}
               />
             </div>
             {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+              <p className={`text-red-500 text-sm mt-1 ${
+                i18n.language === 'ar' ? 'text-right' : 'text-left'
+              }`}>{errors.email}</p>
             )}
           </div>
 
           {/* Password Field */}
           <div className="space-y-1">
-            <label htmlFor="password" className="text-sm font-medium text-gray-700">
+            <label htmlFor="password" className={`text-sm font-medium text-gray-700 block ${
+              i18n.language === 'ar' ? 'text-right' : 'text-left'
+            }`}>
               {t('password')}
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <div className={`absolute inset-y-0 flex items-center pointer-events-none ${
+                i18n.language === 'ar' ? 'right-0 pr-3' : 'left-0 pl-3'
+              }`}>
                 <Lock className="h-5 w-5 text-gray-400" />
               </div>
               <input
@@ -128,13 +175,18 @@ const LoginForm = () => {
                 autoComplete="current-password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`block w-full pl-10 pr-12 py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ease-in-out`}
+                dir={i18n.language === 'ar' ? 'rtl' : 'ltr'}
+                className={`block w-full py-3 border ${errors.password ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-200 ease-in-out ${
+                  i18n.language === 'ar' ? 'pr-10 pl-12' : 'pl-10 pr-12'
+                }`}
                 placeholder={t('enter_password')}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                className={`absolute inset-y-0 flex items-center ${
+                  i18n.language === 'ar' ? 'left-0 pl-3' : 'right-0 pr-3'
+                }`}
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
@@ -144,7 +196,9 @@ const LoginForm = () => {
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+              <p className={`text-red-500 text-sm mt-1 ${
+                i18n.language === 'ar' ? 'text-right' : 'text-left'
+              }`}>{errors.password}</p>
             )}
           </div>
 

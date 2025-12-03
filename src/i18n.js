@@ -48,6 +48,7 @@ i18n
           "loading": "Loading...",
           "fetch_error": "Failed to fetch orders",
           "update_error": "Failed to update order status",
+          "access_token_required": "Access token required",
           "order_updated_successfully": "Order updated successfully",
           "order_complete_admin": "Order completed by admin",
           "view": "View",
@@ -83,7 +84,9 @@ i18n
       "active": "Active",
       "inactive": "Inactive",
       "no_products_found": "No products found.",
+      "image": "Image",
       "category": "Category",
+      "measurement_unit": "Measurement Unit",
       "stock_level": "Stock Level",
       "status": "Status",
       "actions": "Actions",
@@ -107,6 +110,11 @@ i18n
       "valid_stock_quantity_required": "A valid stock quantity is required.",
       "category_required": "Category is required.",
       "language_required": "Language is required.",
+      "measurement_unit_required": "Measurement unit is required.",
+      "select_measurement_unit": "Select Measurement Unit",
+      "meter": "Meter",
+      "kilogram": "Kilogram",
+      "piece": "Piece",
       "discount_price_validation": "Discount price must not exceed the original price.",
       "location_error": "Error getting location. Please enable location and try again.",
       "product_updated_successfully": "Product updated successfully!",
@@ -115,6 +123,10 @@ i18n
       "home": "Home",
       "products": "Products",
       "basic_details": "Basic Details",
+      "product_name_en": "Product Name (English)",
+      "product_name_ar": "Product Name (Arabic)",
+      "product_name_en_required": "Product name in English is required.",
+      "product_name_ar_required": "Product name in Arabic is required.",
       "description": "Description",
       "select_category": "Select Category",
       "language": "Language",
@@ -174,9 +186,15 @@ i18n
       "no_orders_by_status_data": "No orders by status data available.",
 
       "subscription_management": "Subscription Management",
+      "no_active_plan": "No active plan",
       "current_plan": "Current Plan",
       "expiry_date": "Expiry Date",
       "features": "Features",
+      "plan": "Plan",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "credit_card": "Credit Card",
+      "failed_to_fetch_subscription_data": "Failed to fetch subscription data",
       "basic_plan": "Basic",
       "professional_plan": "Professional",
       "enterprise_plan": "Enterprise",
@@ -231,6 +249,7 @@ i18n
       "drag_and_drop_logo": "Drag and drop your logo here, or click to select",
       "file_selected": "File selected",
       "current_logo": "Current Logo",
+      "notification_preferences": "Notification Preferences",
       "order_updates": "Order Updates",
       "stock_alerts": "Stock Alerts",
       "sales_notifications": "Sales Notifications",
@@ -248,6 +267,8 @@ i18n
           "closed": "Closed",
           "in_progress": "In Progress",
           "quote_id": "Quote ID",
+          "order_id": "Order ID",
+          "order_date": "Order Date",
           "customer_name": "Customer Name",
           "project_type": "Project Type",
           "area": "Area",
@@ -271,11 +292,19 @@ i18n
           "email": "Email",
           "address": "Address",
           "proposal_submitted": "Proposal submitted successfully",
+          "vendor_submission_created_successfully": "Vendor submission created successfully.",
           "proposal_error": "Failed to submit proposal",
+          "proposal_validation_error": "Please fill in all required fields including completion date",
+          "vendor_info_not_found": "Vendor information not found. Please login again.",
           "submit_proposal_modal": "Submit Proposal",
+          "submit_your_proposal": "Submit Your Proposal",
+          "submit_proposal_description": "Submit your proposal with your pricing and terms for this demand quote.",
           "proposal_amount": "Proposal Amount",
+          "proposal_amount_placeholder": "0.00",
           "proposal_description": "Proposal Description",
+          "proposal_description_placeholder": "Describe your proposal...",
           "proposal_notes": "Additional Notes",
+          "proposal_notes_placeholder": "Additional notes...",
           "duration": "Duration",
           "completion_date": "Completion Date",
           "select_completion_date": "Select completion date",
@@ -309,7 +338,10 @@ i18n
       "sending_otp": "Sending...",
       "send_otp": "Send OTP",
       "failed_to_send_otp": "Failed to send OTP.",
+      "failed_to_send_otp_via_sms": "Failed to send OTP via SMS.",
       "otp_verification_failed": "OTP verification failed.",
+      "registration_failed": "Registration failed. Please try again.",
+      "network_error": "Network error. Please check your connection and try again.",
       "business_logo": "Business Logo",
       "business_type": "Business Type",
       "zip_code": "ZIP Code",
@@ -366,10 +398,13 @@ i18n
           "completed": "مكتمل",
           "cancelled": "ملغى",
           "order_management":"إدارة الطلبات",
+          "order_id": "رقم الطلب",
+          "order_date": "تاريخ الطلب",
           "select_date_range": "حدد النطاق الزمني",
           "loading": "جاري التحميل...",
           "fetch_error": "فشل في جلب الطلبات",
           "update_error": "فشل في تحديث حالة الطلب",
+          "access_token_required": "رمز الوصول مطلوب",
           "order_updated_successfully": "تم تحديث الطلب بنجاح",
           "order_complete_admin": "تم إكمال الطلب بواسطة المشرف",
           "view": "عرض",
@@ -405,7 +440,9 @@ i18n
       "active": "نشط",
       "inactive": "غير نشط",
       "no_products_found": "لا توجد منتجات.",
+      "image": "الصورة",
       "category": "الفئة",
+      "measurement_unit": "وحدة القياس",
       "stock_level": "مستوى المخزون",
       "status": "الحالة",
       "actions": "الإجراءات",
@@ -429,6 +466,11 @@ i18n
       "valid_stock_quantity_required": "الكمية مطلوبة ويجب أن تكون صحيحة.",
       "category_required": "الفئة مطلوبة.",
       "language_required": "اللغة مطلوبة.",
+      "measurement_unit_required": "وحدة القياس مطلوبة.",
+      "select_measurement_unit": "اختر وحدة القياس",
+      "meter": "متر",
+      "kilogram": "كيلوغرام",
+      "piece": "قطعة",
       "discount_price_validation": "يجب ألا يتجاوز السعر المخفض السعر الأصلي.",
       "location_error": "حدث خطأ أثناء الحصول على الموقع. يرجى تفعيل تحديد الموقع والمحاولة مرة أخرى.",
       "product_updated_successfully": "تم تحديث المنتج بنجاح!",
@@ -437,6 +479,10 @@ i18n
       "home": "الصفحة الرئيسية",
       "products": "المنتجات",
       "basic_details": "التفاصيل الأساسية",
+      "product_name_en": "اسم المنتج (الإنجليزية)",
+      "product_name_ar": "اسم المنتج (العربية)",
+      "product_name_en_required": "اسم المنتج بالإنجليزية مطلوب.",
+      "product_name_ar_required": "اسم المنتج بالعربية مطلوب.",
       "description": "الوصف",
       "select_category": "اختر الفئة",
       "language": "اللغة",
@@ -496,9 +542,15 @@ i18n
       "no_orders_by_status_data": "لا توجد بيانات للطلبات حسب الحالة.",
  
       "subscription_management": "إدارة الاشتراكات",
+      "no_active_plan": "لا توجد خطة نشطة",
       "current_plan": "الخطة الحالية",
       "expiry_date": "تاريخ الانتهاء",
       "features": "الميزات",
+      "plan": "الخطة",
+      "weekly": "أسبوعي",
+      "monthly": "شهري",
+      "credit_card": "بطاقة ائتمان",
+      "failed_to_fetch_subscription_data": "فشل في جلب بيانات الاشتراك",
       "basic_plan": "أساسي",
       "professional_plan": "احترافي",
       "enterprise_plan": "مؤسسة",
@@ -522,7 +574,7 @@ i18n
       "confirm_payment": "تأكيد الدفع",
       "upgrade_to": "الترقية إلى",
       "download": "تحميل",
-      "payment_history": "تاريخ الدفع",
+      "payment_history": "سجل الدفع",
       "payment_date": "تاريخ الدفع",
       "amount_paid": "المبلغ المدفوع",
       "invoice": "الفاتورة",
@@ -552,6 +604,7 @@ i18n
       "drag_and_drop_logo": "اسحب وأفلت شعارك هنا أو انقر للاختيار",
       "file_selected": "تم اختيار الملف",
       "current_logo": "الشعار الحالي",
+      "notification_preferences": "تفضيلات الإشعارات",
       "order_updates": "تحديثات الطلب",
       "stock_alerts": "تنبيهات المخزون",
       "sales_notifications": "إشعارات المبيعات",
@@ -592,11 +645,19 @@ i18n
       "email": "البريد الإلكتروني",
       "address": "العنوان",
       "proposal_submitted": "تم إرسال العرض بنجاح",
+      "vendor_submission_created_successfully": "تم إنشاء تقديم البائع بنجاح.",
       "proposal_error": "فشل في إرسال العرض",
+      "proposal_validation_error": "يرجى ملء جميع الحقول المطلوبة بما في ذلك تاريخ الإنجاز",
+      "vendor_info_not_found": "لم يتم العثور على معلومات البائع. يرجى تسجيل الدخول مرة أخرى.",
       "submit_proposal_modal": "إرسال عرض",
+      "submit_your_proposal": "إرسال عرضك",
+      "submit_proposal_description": "أرسل عرضك مع التسعير والشروط الخاصة بهذا الطلب.",
       "proposal_amount": "مبلغ العرض",
+      "proposal_amount_placeholder": "0.00",
       "proposal_description": "وصف العرض",
+      "proposal_description_placeholder": "اوصف عرضك...",
       "proposal_notes": "ملاحظات إضافية",
+      "proposal_notes_placeholder": "ملاحظات إضافية...",
       "duration": "المدة",
       "completion_date": "تاريخ الإنجاز",
       "select_completion_date": "اختر تاريخ الإنجاز",
@@ -645,7 +706,10 @@ i18n
       "sending_otp": "جاري الإرسال...",
       "send_otp": "إرسال رمز التحقق",
       "failed_to_send_otp": "فشل إرسال رمز التحقق.",
+      "failed_to_send_otp_via_sms": "فشل إرسال رمز التحقق عبر الرسائل النصية.",
       "otp_verification_failed": "فشل التحقق من رمز التحقق.",
+      "registration_failed": "فشل التسجيل. يرجى المحاولة مرة أخرى.",
+      "network_error": "خطأ في الشبكة. يرجى التحقق من الاتصال والمحاولة مرة أخرى.",
       "business_logo":"شعار العمل",
       "business_type":"نوع العمل",
       "zip_code":"الرمز البريدي",
@@ -677,5 +741,30 @@ i18n
       useSuspense: false, // Set this to false to avoid Suspense usage (can be helpful for server-side rendering)
     },
   });
+
+// Add language change listener for RTL/LTR direction
+i18n.on('languageChanged', (lng) => {
+  // Save the selected language to localStorage
+  localStorage.setItem('i18nextLng', lng);
+
+  // Change page direction based on language
+  if (lng === 'ar') {
+    document.documentElement.setAttribute('dir', 'rtl');
+    document.body.setAttribute('dir', 'rtl');
+  } else {
+    document.documentElement.setAttribute('dir', 'ltr');
+    document.body.setAttribute('dir', 'ltr');
+  }
+});
+
+// Set initial direction on load
+const currentLang = localStorage.getItem('i18nextLng') || 'en';
+if (currentLang === 'ar') {
+  document.documentElement.setAttribute('dir', 'rtl');
+  document.body.setAttribute('dir', 'rtl');
+} else {
+  document.documentElement.setAttribute('dir', 'ltr');
+  document.body.setAttribute('dir', 'ltr');
+}
 
 export default i18n;

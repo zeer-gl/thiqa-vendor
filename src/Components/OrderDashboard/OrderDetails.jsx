@@ -1,9 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import BaseURL from '../BaseURL/BaseURL';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
+import { authenticatedFetch } from '../../utils/apiUtils';
+
+// Helper function to translate error messages
+const translateErrorMessage = (errorMessage, t) => {
+  if (!errorMessage) return t('fetch_error');
+  
+  const errorLower = errorMessage.toLowerCase();
+  
+  if (errorLower.includes('access token required') || errorLower.includes('access token')) {
+    return t('access_token_required');
+  }
+  
+  if (errorLower.includes('unauthorized') || errorLower.includes('401')) {
+    return t('access_token_required');
+  }
+  
+  // Return the original message if no translation found
+  return errorMessage;
+};
 
 const OrderDetails = () => {
   const { t } = useTranslation(); // Use the translation function
@@ -20,14 +37,19 @@ const OrderDetails = () => {
     const fetchOrderDetails = async () => {
       setLoading(true);
       try {
-        const token = localStorage.getItem('authToken');
-        const response = await axios.get(
-          `${BaseURL}/orders/${orderId}?id=${vendorId}`,
-          {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          }
-        );
-        const fetchedOrder = response.data.order;
+        const response = await authenticatedFetch(`/orders/${orderId}?id=${vendorId}`);
+        
+        if (!response) {
+          throw new Error('No response from server');
+        }
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const fetchedOrder = data.order;
         setOrder(fetchedOrder);
         if (fetchedOrder.vendorOrders && fetchedOrder.vendorOrders.length > 0) {
           const currentVendorOrder = fetchedOrder.vendorOrders.find(
@@ -41,7 +63,10 @@ const OrderDetails = () => {
         }
         setError(null);
       } catch (err) {
-        setError(err.response?.data?.message || t('fetch_error'));
+        const errorMessage = err.message || err.response?.data?.message || t('fetch_error');
+        const translatedError = translateErrorMessage(errorMessage, t);
+        setError(translatedError);
+        toast.error(translatedError);
       } finally {
         setLoading(false);
       }
@@ -52,25 +77,34 @@ const OrderDetails = () => {
 
   const handleDeliveryStatusChange = async (newStatus) => {
     try {
-      const token = localStorage.getItem('authToken');
-      await axios.put(
-        `${BaseURL}/orders/${orderId}/status`,
-        {
+      const response = await authenticatedFetch(`/orders/${orderId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({
           status: newStatus,
           vendorId, // Include vendorId in the request body
-        },
-        {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        }
-      );
+        }),
+      });
+      
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+      
       setDeliveryStatus(newStatus);
       setVendorOrder((prevVendorOrder) => ({
         ...prevVendorOrder,
         status: newStatus,
       }));
+      toast.success(t('order_updated_successfully'));
     } catch (err) {
       console.error('Failed to update delivery status:', err);
-      alert(t('update_error'));
+      const errorMessage = err.message || err.response?.data?.message || t('update_error');
+      const translatedError = translateErrorMessage(errorMessage, t);
+      toast.error(translatedError);
     }
   };
 
@@ -87,15 +121,26 @@ const OrderDetails = () => {
 
   const handleDeleteOrder = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      await axios.delete(`${BaseURL}/orders/${orderId}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      const response = await authenticatedFetch(`/orders/${orderId}`, {
+        method: 'DELETE',
       });
-      toast(t('order_deleted_successfully'));
+      
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+      
+      toast.success(t('order_deleted_successfully'));
       navigate('/manage-orders');
     } catch (err) {
       console.error('Failed to delete order:', err);
-      toast(t('order_deleted_error'));
+      const errorMessage = err.message || err.response?.data?.message || t('order_deleted_error');
+      const translatedError = translateErrorMessage(errorMessage, t);
+      toast.error(translatedError);
     }
   };
 

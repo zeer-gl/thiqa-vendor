@@ -54,11 +54,11 @@ const POSDashboard = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('pos_dashboard')}</h1>
         </div>
-        <div className="flex space-x-4">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md">
+        <div className="flex gap-4">
+          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
             {t('add_pos_device')}
           </button>
-          <button className="px-4 py-2 bg-green-600 text-white rounded-md">
+          <button className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
             {t('view_daily_sales_report')}
           </button>
         </div>

@@ -248,14 +248,14 @@ const ProductListManager = () => {
           <table className="min-w-full bg-white border border-gray-300">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('Image')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('product_name')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('category')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('measurement_unit')}</th> {/* Added Measurement Unit heading */}
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('price')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('stock_level')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('status')}</th>
-                <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">{t('actions')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('image', { defaultValue: 'Image' })}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('product_name')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('category')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('measurement_unit', { defaultValue: 'Measurement Unit' })}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('price')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('stock_level')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('status')}</th>
+                <th className={`px-6 py-3 text-sm font-medium text-gray-600 ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>{t('actions')}</th>
               </tr>
             </thead>
             <tbody>

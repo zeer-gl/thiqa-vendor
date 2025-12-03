@@ -1,14 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Phone, Building2, FileText } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import BaseURL from '../BaseURL/BaseURL';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'; // Import useTranslation
+import LanguageSwitcher from './LanguageSwitcher';
 
 const VendorRegistration = () => {
-  const { t } = useTranslation(); // Use the translation hook
+  const { t, i18n } = useTranslation(); // Use the translation hook
   const [currentStep, setCurrentStep] = useState(1);
+
+  // Set initial page direction based on language
+  useEffect(() => {
+    const currentLang = i18n.language || localStorage.getItem('i18nextLng') || 'en';
+    if (currentLang === 'ar') {
+      document.documentElement.setAttribute('dir', 'rtl');
+      document.body.setAttribute('dir', 'rtl');
+    } else {
+      document.documentElement.setAttribute('dir', 'ltr');
+      document.body.setAttribute('dir', 'ltr');
+    }
+  }, [i18n.language]);
+
+  // Helper function to translate error messages
+  const translateErrorMessage = (errorMessage) => {
+    if (!errorMessage) return '';
+    
+    const message = errorMessage.toLowerCase();
+    
+    // Check for specific backend error messages and translate them
+    if (message.includes('failed to send otp via sms') || message.includes('failed to send otp')) {
+      return t('failed_to_send_otp_via_sms');
+    } else if (message.includes('otp verification failed') || message.includes('invalid otp')) {
+      return t('otp_verification_failed');
+    } else if (message.includes('registration failed') || message.includes('registration error')) {
+      return t('registration_failed');
+    } else if (message.includes('network error') || message.includes('network')) {
+      return t('network_error');
+    } else if (message.includes('vendor not found') || message.includes('user not found')) {
+      return i18n.language === 'ar' ? 'البائع غير موجود' : 'Vendor not found';
+    } else if (message.includes('phone number already exists') || message.includes('phone already registered')) {
+      return i18n.language === 'ar' ? 'رقم الهاتف مسجل بالفعل' : 'Phone number already exists';
+    } else if (message.includes('email already exists') || message.includes('email already registered')) {
+      return i18n.language === 'ar' ? 'البريد الإلكتروني مسجل بالفعل' : 'Email already exists';
+    }
+    
+    // Return original message if no translation found
+    return errorMessage;
+  };
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -94,8 +134,9 @@ const VendorRegistration = () => {
       setShowOtpModal(true);
     } catch (error) {
       console.error('Send OTP Error:', error);
+      const errorMessage = error.response?.data?.message || t('failed_to_send_otp');
       setErrors({
-        sendOtp: error.response?.data?.message || t('failed_to_send_otp'),
+        sendOtp: translateErrorMessage(errorMessage),
       });
     } finally {
       setLoading(false);
@@ -117,8 +158,9 @@ const VendorRegistration = () => {
       setShowOtpModal(false);
     } catch (error) {
       console.error('Verify OTP Error:', error);
+      const errorMessage = error.response?.data?.message || t('otp_verification_failed');
       setErrors({
-        verifyOtp: error.response?.data?.message || t('otp_verification_failed'),
+        verifyOtp: translateErrorMessage(errorMessage),
       });
     } finally {
       setLoading(false);
@@ -156,8 +198,9 @@ const VendorRegistration = () => {
       navigate('/');
     } catch (error) {
       console.error('Registration Error:', error);
+      const errorMessage = error.response?.data?.message || t('registration_failed');
       setErrors({
-        register: error.response?.data?.message || t('registration_failed'),
+        register: translateErrorMessage(errorMessage),
       });
     } finally {
       setLoading(false);
@@ -165,8 +208,10 @@ const VendorRegistration = () => {
   };
 
   const renderStepIndicator = () => (
-    <div className="mb-8">
-      <div className="flex items-center justify-center space-x-4">
+    <div className="mb-8 mt-12">
+      <div className={`flex items-center justify-center ${
+        i18n.language === 'ar' ? 'space-x-reverse' : ''
+      } space-x-4`}>
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center">
             <div className="flex flex-col items-center">
@@ -225,7 +270,11 @@ const VendorRegistration = () => {
             {loading ? t('sending_otp') : t('send_otp')}
           </button>
         </div>
-        {errors.sendOtp && <p className="text-red-500 text-sm">{errors.sendOtp}</p>}
+        {errors.sendOtp && (
+          <p className={`text-red-500 text-sm ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {errors.sendOtp}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -330,7 +379,11 @@ const VendorRegistration = () => {
           disabled
         />
       </div>
-      {errors.register && <p className="text-red-500 text-sm">{errors.register}</p>}
+      {errors.register && (
+        <p className={`text-red-500 text-sm ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+          {errors.register}
+        </p>
+      )}
     </div>
   );
 
@@ -379,7 +432,11 @@ const VendorRegistration = () => {
       >
         {loading ? t('registering') : t('submit')}
       </button>
-      {errors.register && <p className="text-red-500 text-sm">{errors.register}</p>}
+      {errors.register && (
+        <p className={`text-red-500 text-sm ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+          {errors.register}
+        </p>
+      )}
     </div>
   );
 
@@ -406,7 +463,11 @@ const VendorRegistration = () => {
             />
           ))}
         </div>
-        {errors.verifyOtp && <p className="text-red-500 text-sm">{errors.verifyOtp}</p>}
+        {errors.verifyOtp && (
+          <p className={`text-red-500 text-sm ${i18n.language === 'ar' ? 'text-right' : 'text-left'}`}>
+            {errors.verifyOtp}
+          </p>
+        )}
         <button
           onClick={handleVerifyOtp}
           className={`w-full px-4 py-2 bg-black text-white rounded hover:bg-gray-800 transition-colors ${
@@ -441,7 +502,11 @@ const VendorRegistration = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-xl relative">
+        {/* Language Switcher */}
+        <div className={`absolute top-4 ${i18n.language === 'ar' ? 'left-4' : 'right-4'}`}>
+          <LanguageSwitcher />
+        </div>
         {renderStepIndicator()}
         {currentStep === 1 && renderPhoneVerification()}
         {currentStep === 2 && renderBusinessDetails()}

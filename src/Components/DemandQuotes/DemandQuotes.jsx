@@ -7,6 +7,21 @@ import { useTranslation } from 'react-i18next';
 import { authenticatedFetch } from '../../utils/apiUtils';
 import { Eye, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
 
+// Helper function to translate backend messages
+const translateBackendMessage = (message, t) => {
+  if (!message) return t('proposal_submitted');
+  
+  const messageLower = message.toLowerCase();
+  
+  if (messageLower.includes('vendor submission created successfully') || 
+      messageLower.includes('vendor submission') && messageLower.includes('successfully')) {
+    return t('vendor_submission_created_successfully');
+  }
+  
+  // Return the original message if no translation found
+  return message;
+};
+
 const DemandQuotes = () => {
   console.log('🎯 DemandQuotes component rendered');
   const { t } = useTranslation();
@@ -120,7 +135,7 @@ const DemandQuotes = () => {
   const handleProposalSubmit = async () => {
     // Validate required fields for proposal submission
     if (!proposalData.amount || !proposalData.description || !proposalData.durationDate) {
-      toast.error('Please fill in all required fields including completion date');
+      toast.error(t('proposal_validation_error'));
       return;
     }
 
@@ -132,7 +147,7 @@ const DemandQuotes = () => {
       const vendorId = vendorData._id;
       
       if (!vendorId) {
-        toast.error('Vendor information not found. Please login again.');
+        toast.error(t('vendor_info_not_found'));
         return;
       }
 
@@ -156,7 +171,8 @@ const DemandQuotes = () => {
 
       if (response && response.ok) {
         const result = await response.json();
-        toast.success(result.message || t('proposal_submitted'));
+        const successMessage = result.message ? translateBackendMessage(result.message, t) : t('proposal_submitted');
+        toast.success(successMessage);
         setShowProposalModal(false);
         setProposalData({ amount: '', description: '', notes: '', duration: '', durationDate: null });
         // Refresh quotes
@@ -507,10 +523,10 @@ const DemandQuotes = () => {
                 </div>
               )}
             </div>
-            <div className="mt-6 flex justify-end space-x-4">
+            <div className="mt-6 flex justify-end gap-4">
               <button
                 onClick={() => setShowQuoteModal(false)}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
               >
                 {t('cancel')}
               </button>
@@ -525,7 +541,7 @@ const DemandQuotes = () => {
                     setShowQuoteModal(false);
                     handleSubmitProposal(selectedQuote);
                   }}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                 >
                   {t('submit_proposal')}
                 </button>
@@ -549,9 +565,9 @@ const DemandQuotes = () => {
             {/* Proposal Submission Section */}
             <div className="space-y-4">
               <div className="bg-green-50 p-4 rounded-lg">
-                <h3 className="font-medium text-green-900 mb-2">Submit Your Proposal</h3>
+                <h3 className="font-medium text-green-900 mb-2">{t('submit_your_proposal')}</h3>
                 <p className="text-sm text-green-700">
-                  Submit your proposal with your pricing and terms for this demand quote.
+                  {t('submit_proposal_description')}
                 </p>
               </div>
               
@@ -564,7 +580,7 @@ const DemandQuotes = () => {
                     value={proposalData.amount}
                     onChange={(e) => setProposalData({ ...proposalData, amount: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-                    placeholder="0.00"
+                    placeholder={t('proposal_amount_placeholder')}
                   />
                 </div>
                 <div>
@@ -589,7 +605,7 @@ const DemandQuotes = () => {
                   onChange={(e) => setProposalData({ ...proposalData, description: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
                   rows="3"
-                  placeholder="Describe your proposal..."
+                  placeholder={t('proposal_description_placeholder')}
                 />
               </div>
               
@@ -600,25 +616,25 @@ const DemandQuotes = () => {
                   onChange={(e) => setProposalData({ ...proposalData, notes: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
                   rows="2"
-                  placeholder="Additional notes..."
+                  placeholder={t('proposal_notes_placeholder')}
                 />
               </div>
             </div>
             
-            <div className="mt-6 flex justify-end space-x-4">
+            <div className="mt-6 flex justify-end gap-4">
               <button
                 onClick={() => {
                   setShowProposalModal(false);
                   setProposalData({ amount: '', description: '', notes: '', duration: '', durationDate: null });
                 }}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
               >
                 {t('cancel')}
               </button>
               <button
                 onClick={handleProposalSubmit}
                 disabled={loading}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? t('loading') : t('submit')}
               </button>

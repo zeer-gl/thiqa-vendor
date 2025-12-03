@@ -2,11 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import axios from 'axios';
-import BaseURL from '../BaseURL/BaseURL';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next'; // Import useTranslation hook
 import { authenticatedFetch } from '../../utils/apiUtils';
+
+// Helper function to translate error messages
+const translateErrorMessage = (errorMessage, t) => {
+  if (!errorMessage) return t('fetch_error');
+  
+  const errorLower = errorMessage.toLowerCase();
+  
+  if (errorLower.includes('access token required') || errorLower.includes('access token')) {
+    return t('access_token_required');
+  }
+  
+  if (errorLower.includes('unauthorized') || errorLower.includes('401')) {
+    return t('access_token_required');
+  }
+  
+  // Return the original message if no translation found
+  return errorMessage;
+};
 
 const OrderDashboard = () => {
   const { t } = useTranslation(); // Use translation hook to get the translation function
@@ -31,6 +47,15 @@ const OrderDashboard = () => {
       setLoading(true);
       try {
         const response = await authenticatedFetch(`/getorders?vendorId=${vendorId}`);
+        if (!response) {
+          throw new Error('No response from server');
+        }
+        
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+          throw new Error(errorData.message || `HTTP ${response.status}`);
+        }
+        
         if (response && isMounted) {
           const data = await response.json();
           const normalizedOrders = data.map(order => ({
@@ -48,7 +73,10 @@ const OrderDashboard = () => {
         }
       } catch (err) {
         if (isMounted) {
-          setError(err.response?.data?.message || t('fetch_error'));
+          const errorMessage = err.message || err.response?.data?.message || t('fetch_error');
+          const translatedError = translateErrorMessage(errorMessage, t);
+          setError(translatedError);
+          toast.error(translatedError);
         }
       } finally {
         if (isMounted) {
@@ -87,21 +115,35 @@ const OrderDashboard = () => {
   const handleStatusChange = async (orderId, newStatus) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('authToken');
-      await axios.put(`${BaseURL}/orders/${orderId}/status`, {
-        status: newStatus,
-        vendorId,
-      }, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      const response = await authenticatedFetch(`/orders/${orderId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          status: newStatus,
+          vendorId,
+        }),
       });
+      
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+      
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === orderId ? { ...order, status: newStatus } : order
         )
       );
       setError(null);
+      toast.success(t('order_updated_successfully'));
     } catch (err) {
-      setError(err.response?.data?.message || t('update_error')); // Use translated error message
+      const errorMessage = err.message || err.response?.data?.message || t('update_error');
+      const translatedError = translateErrorMessage(errorMessage, t);
+      setError(translatedError);
+      toast.error(translatedError);
     } finally {
       setLoading(false);
     }
@@ -120,26 +162,37 @@ const OrderDashboard = () => {
   const handleUpdateOrder = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('authToken');
-      await axios.put(
-        `${BaseURL}/updateOrder?vendorId=${vendorId}&orderId=${selectedOrder.id}`, 
-        { 
-          shippingAddress: selectedOrder.shippingAddress,
-          totalAmount: selectedOrder.totalAmount,
-        },
+      const response = await authenticatedFetch(
+        `/updateOrder?vendorId=${vendorId}&orderId=${selectedOrder.id}`,
         {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+          method: 'PUT',
+          body: JSON.stringify({
+            shippingAddress: selectedOrder.shippingAddress,
+            totalAmount: selectedOrder.totalAmount,
+          }),
         }
       );
+      
+      if (!response) {
+        throw new Error('No response from server');
+      }
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
+        throw new Error(errorData.message || `HTTP ${response.status}`);
+      }
+      
       setOrders((prevOrders) =>
         prevOrders.map((order) =>
           order.id === selectedOrder.id ? selectedOrder : order
         )
       );
       closeUpdateModal();
-      toast(t('order_updated_successfully')); // Use translated success message
+      toast.success(t('order_updated_successfully'));
     } catch (error) {
-      toast(error.response?.data?.message || t('update_error')); // Use translated error message
+      const errorMessage = error.message || error.response?.data?.message || t('update_error');
+      const translatedError = translateErrorMessage(errorMessage, t);
+      toast.error(translatedError);
     } finally {
       setLoading(false);
     }
@@ -288,8 +341,8 @@ const OrderDashboard = () => {
         <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
           <div className="bg-white p-8 rounded-lg shadow-lg max-w-lg w-full">
             <h2 className="text-xl font-semibold mb-4">{t('update_order')}</h2>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('shipping_address')}</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('shipping_address')}</label>
               <input
                 type="text"
                 value={selectedOrder.shippingAddress}
@@ -297,8 +350,8 @@ const OrderDashboard = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">{t('total_amount')}</label>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">{t('total_amount')}</label>
               <input
                 type="text"
                 value={selectedOrder.totalAmount}
@@ -306,16 +359,16 @@ const OrderDashboard = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
               />
             </div>
-            <div className="mt-4 flex justify-end space-x-4">
+            <div className="mt-6 flex justify-end gap-4">
               <button
                 onClick={closeUpdateModal}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md"
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
               >
                 {t('cancel')}
               </button>
               <button
                 onClick={handleUpdateOrder}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
                 {t('update')}
               </button>
